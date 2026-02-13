@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAA Translation Assistant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -482,6 +483,138 @@
   .cat-program { background: rgba(212,168,67,0.15); color: #8B6914; }
   .cat-policy { background: rgba(26,16,8,0.08); color: var(--ink-soft); }
   .cat-concept { background: rgba(41,128,185,0.1); color: #1A5276; }
+  .cat-person { background: rgba(39,174,96,0.12); color: #1A6B3A; }
+
+  /* Glossary toolbar */
+  .glossary-toolbar {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cream);
+  }
+  .glossary-toolbar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--white);
+    outline: none;
+    color: var(--ink);
+  }
+  .glossary-toolbar input:focus { border-color: var(--red); }
+
+  .btn-add-entry {
+    background: var(--red);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .btn-add-entry:hover { background: var(--red-dark); }
+
+  .btn-export {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .btn-export:hover { border-color: var(--red); color: var(--red); }
+
+  /* Add entry form */
+  .add-entry-form {
+    padding: 20px 24px;
+    background: var(--white);
+    border-bottom: 2px solid var(--red);
+    animation: slideDown 0.2s ease;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .add-entry-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+  .add-entry-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .add-field label {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    opacity: 0.6;
+    margin-bottom: 5px;
+  }
+  .add-field input, .add-field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+  }
+  .add-field input:focus, .add-field select:focus { border-color: var(--red); }
+  .add-entry-error { font-size: 12px; color: var(--red); min-height: 16px; margin-bottom: 6px; }
+  .btn-save-entry {
+    background: var(--red); color: white; border: none;
+    padding: 8px 18px; border-radius: 6px; font-size: 13px;
+    font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
+  }
+  .btn-save-entry:hover { background: var(--red-dark); }
+  .btn-cancel-entry {
+    background: transparent; color: var(--ink-soft);
+    border: 1px solid var(--border); padding: 8px 14px;
+    border-radius: 6px; font-size: 13px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .btn-cancel-entry:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Delete button in table */
+  .btn-delete-row {
+    background: transparent; border: none;
+    color: rgba(26,16,8,0.25); cursor: pointer;
+    font-size: 14px; padding: 2px 6px;
+    border-radius: 4px; transition: all 0.15s;
+    line-height: 1;
+  }
+  .btn-delete-row:hover { color: var(--red); background: rgba(192,57,43,0.07); }
+  .custom-badge {
+    font-size: 10px; color: var(--gold); margin-left: 4px;
+    font-style: normal; vertical-align: middle;
+  }
+
+  @media (max-width: 640px) {
+    .add-entry-grid { grid-template-columns: 1fr 1fr; }
+  }
 
   /* About panel */
   .about-panel {
@@ -727,6 +860,49 @@
 
   /* App hidden until authenticated */
   #appContent { display: none; }
+
+  /* Export buttons */
+  .btn-export-word {
+    background: #1F5C99;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .btn-export-word:hover { background: #174a7a; transform: translateY(-1px); }
+
+  .btn-export-csv-trans {
+    background: #217346;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .btn-export-csv-trans:hover { background: #185c38; transform: translateY(-1px); }
+
+  .export-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
 </style>
 </head>
 <body>
@@ -807,8 +983,12 @@
           </div>
           <span class="char-count" id="charCount">0 characters</span>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn-copy" id="copyBtn" onclick="copyOutput()" style="display:none">Copy 复制</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <div class="export-group">
+            <button class="btn-copy" id="copyBtn" onclick="copyOutput()" style="display:none">Copy 复制</button>
+            <button class="btn-export-word" id="exportWordBtn" onclick="exportToWord()">📄 Export Word</button>
+            <button class="btn-export-csv-trans" id="exportCsvBtn" onclick="exportToCSV()">📊 Export CSV</button>
+          </div>
           <button class="btn-translate" id="translateBtn" onclick="doTranslate()">
             <span id="btnLabel">Translate</span>
           </button>
@@ -823,17 +1003,55 @@
       <div class="glossary-header">
         <div>
           <h3>CAA Preferred Terminology</h3>
-          <p>Official translations used by Chinese for Affirmative Action</p>
+          <p>Built-in terms + your custom entries — all used automatically during translation</p>
         </div>
         <div style="font-size:28px;opacity:0.2;font-family:'Noto Serif SC',serif;">辞典</div>
       </div>
       <div class="glossary-note">
         <span class="note-icon">★</span>
-        These translations are sourced directly from caasf.org's bilingual content and are automatically applied during translation.
+        Built-in terms load automatically. Custom entries <span style="color:var(--gold)">✎</span> are saved in your browser and persist across sessions.
       </div>
-      <div class="glossary-search">
-        <input type="text" id="glossarySearch" placeholder="Search glossary terms..." oninput="filterGlossary()">
+
+      <!-- ADD ENTRY FORM (hidden by default) -->
+      <div class="add-entry-form" id="addEntryForm" style="display:none">
+        <div class="add-entry-title">Add New Glossary Entry</div>
+        <div class="add-entry-grid">
+          <div class="add-field">
+            <label>English</label>
+            <input type="text" id="newEnglish" placeholder="e.g. Vincent Pan">
+          </div>
+          <div class="add-field">
+            <label>Simplified 简体</label>
+            <input type="text" id="newSimplified" placeholder="e.g. 潘伟旋">
+          </div>
+          <div class="add-field">
+            <label>Traditional 繁體</label>
+            <input type="text" id="newTraditional" placeholder="e.g. 潘偉旋">
+          </div>
+          <div class="add-field">
+            <label>Category</label>
+            <select id="newCategory">
+              <option value="person">Person</option>
+              <option value="org">Organization</option>
+              <option value="program">Program</option>
+              <option value="policy">Policy</option>
+              <option value="concept">Concept/Term</option>
+            </select>
+          </div>
+        </div>
+        <div class="add-entry-error" id="addEntryError"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+          <button class="btn-cancel-entry" onclick="toggleAddForm(false)">Cancel</button>
+          <button class="btn-save-entry" onclick="saveNewEntry()">Save Entry</button>
+        </div>
       </div>
+
+      <div class="glossary-toolbar">
+        <input type="text" id="glossarySearch" placeholder="Search terms…" oninput="filterGlossary()">
+        <button class="btn-add-entry" onclick="toggleAddForm(true)">+ Add Entry</button>
+        <button class="btn-export" onclick="exportGlossary()">⬇ Export CSV</button>
+      </div>
+
       <table id="glossaryTable">
         <thead>
           <tr>
@@ -841,6 +1059,7 @@
             <th>Simplified 简体</th>
             <th>Traditional 繁體</th>
             <th>Category</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="glossaryBody"></tbody>
@@ -923,7 +1142,11 @@ window.addEventListener("load", () => {
 // ============================================================
 // CAA GLOSSARY — sourced from caasf.org bilingual content
 // ============================================================
-const GLOSSARY = [
+const BUILT_IN_GLOSSARY = [
+  // People
+  { english: "Vincent Pan", simplified: "潘伟旋", traditional: "潘偉旋", category: "person" },
+  { english: "Cynthia Choi", simplified: "崔贞文", traditional: "崔貞文", category: "person" },
+
   // Organization Names
   { english: "Chinese for Affirmative Action", simplified: "华人权益促进会", traditional: "華人權益促進會", category: "org" },
   { english: "CAA", simplified: "华促会", traditional: "華促會", category: "org" },
@@ -939,14 +1162,14 @@ const GLOSSARY = [
   { english: "Department of Homeland Security", simplified: "国土安全部", traditional: "國土安全部", category: "org" },
   { english: "DHS", simplified: "国土安全部", traditional: "國土安全部", category: "org" },
   { english: "China Initiative", simplified: "中国行动计划", traditional: "中國行動計劃", category: "policy" },
-  
+
   // Programs & Features
   { english: "Celebration of Justice", simplified: "正义庆典", traditional: "正義慶典", category: "program" },
   { english: "Justice Patch", simplified: "正义补丁", traditional: "正義補丁", category: "program" },
   { english: "PiYaoBa", simplified: "辟谣吧", traditional: "辟謠吧", category: "program" },
   { english: "Lau v. Nichols", simplified: "刘诉尼科尔斯案", traditional: "劉訴尼科爾斯案", category: "program" },
   { english: "Community Service Days", simplified: "社区服务日", traditional: "社區服務日", category: "program" },
-  
+
   // Issue Areas
   { english: "Immigrant Rights", simplified: "移民权利", traditional: "移民權利", category: "concept" },
   { english: "Economic Justice", simplified: "经济正义", traditional: "經濟正義", category: "concept" },
@@ -973,7 +1196,7 @@ const GLOSSARY = [
   { english: "San Francisco", simplified: "旧金山", traditional: "舊金山", category: "concept" },
 
   // General civic/legal terms
-  { english: "co-executive director", simplified: "联合执行主任", traditional: "聯合執行主任", category: "concept" },
+  { english: "Co-Executive Director", simplified: "联合执行主任", traditional: "聯合執行主任", category: "concept" },
   { english: "board of directors", simplified: "董事会", traditional: "董事會", category: "concept" },
   { english: "press release", simplified: "媒体声明", traditional: "媒體聲明", category: "concept" },
   { english: "appropriations bill", simplified: "拨款法案", traditional: "撥款法案", category: "policy" },
@@ -981,8 +1204,99 @@ const GLOSSARY = [
   { english: "Asian American", simplified: "亚裔美国人", traditional: "亞裔美國人", category: "concept" },
 ];
 
-const CATEGORY_LABELS = { org: "Organization", program: "Program", policy: "Policy", concept: "Concept/Term" };
-const CATEGORY_CLASSES = { org: "cat-org", program: "cat-program", policy: "cat-policy", concept: "cat-concept" };
+const CATEGORY_LABELS = { person: "Person", org: "Organization", program: "Program", policy: "Policy", concept: "Concept/Term" };
+const CATEGORY_CLASSES = { person: "cat-person", org: "cat-org", program: "cat-program", policy: "cat-policy", concept: "cat-concept" };
+
+// ============================================================
+// CUSTOM ENTRIES — stored in memory (persist via window.storage)
+// ============================================================
+let customEntries = [];
+const STORAGE_KEY = "caa-glossary-custom";
+
+async function loadCustomEntries() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY);
+    if (result && result.value) {
+      customEntries = JSON.parse(result.value);
+    }
+  } catch (e) {
+    customEntries = [];
+  }
+  renderGlossary();
+}
+
+async function saveCustomEntries() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(customEntries));
+  } catch (e) {
+    // storage unavailable — entries live in memory only this session
+  }
+}
+
+function getFullGlossary() {
+  return [...BUILT_IN_GLOSSARY, ...customEntries];
+}
+
+// ============================================================
+// ADD ENTRY FORM
+// ============================================================
+function toggleAddForm(show) {
+  document.getElementById("addEntryForm").style.display = show ? "block" : "none";
+  if (show) {
+    document.getElementById("newEnglish").focus();
+    document.getElementById("addEntryError").textContent = "";
+  }
+}
+
+function saveNewEntry() {
+  const eng = document.getElementById("newEnglish").value.trim();
+  const simp = document.getElementById("newSimplified").value.trim();
+  const trad = document.getElementById("newTraditional").value.trim();
+  const cat = document.getElementById("newCategory").value;
+  const errEl = document.getElementById("addEntryError");
+
+  if (!eng) { errEl.textContent = "English term is required."; return; }
+  if (!simp && !trad) { errEl.textContent = "At least one Chinese translation is required."; return; }
+
+  const entry = {
+    english: eng,
+    simplified: simp || trad,
+    traditional: trad || simp,
+    category: cat,
+    custom: true
+  };
+
+  customEntries.push(entry);
+  saveCustomEntries();
+  renderGlossary();
+  toggleAddForm(false);
+
+  // Clear fields
+  ["newEnglish","newSimplified","newTraditional"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("newCategory").value = "person";
+}
+
+function deleteCustomEntry(index) {
+  if (!confirm("Remove this custom entry?")) return;
+  customEntries.splice(index, 1);
+  saveCustomEntries();
+  renderGlossary();
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportGlossary() {
+  const all = getFullGlossary();
+  const rows = [["English","Simplified","Traditional","Category"]];
+  all.forEach(g => rows.push([g.english, g.simplified, g.traditional, CATEGORY_LABELS[g.category] || g.category]));
+  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type: "text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "caa-glossary.csv";
+  a.click();
+}
 
 // ============================================================
 // RENDER GLOSSARY
@@ -990,27 +1304,35 @@ const CATEGORY_CLASSES = { org: "cat-org", program: "cat-program", policy: "cat-
 function renderGlossary(filter = "") {
   const tbody = document.getElementById("glossaryBody");
   const lower = filter.toLowerCase();
-  const rows = GLOSSARY.filter(g =>
+  const all = getFullGlossary();
+  const rows = all.filter(g =>
     !filter ||
     g.english.toLowerCase().includes(lower) ||
     g.simplified.includes(filter) ||
     g.traditional.includes(filter)
   );
-  tbody.innerHTML = rows.map(g => `
-    <tr>
-      <td class="english">${g.english}</td>
+
+  tbody.innerHTML = rows.map((g, i) => {
+    const isCustom = !!g.custom;
+    const customIdx = isCustom ? customEntries.indexOf(g) : -1;
+    return `<tr>
+      <td class="english">${g.english}${isCustom ? '<span class="custom-badge" title="Custom entry">✎</span>' : ''}</td>
       <td class="simplified">${g.simplified}</td>
       <td class="traditional">${g.traditional}</td>
-      <td class="category"><span class="cat-badge ${CATEGORY_CLASSES[g.category]}">${CATEGORY_LABELS[g.category]}</span></td>
-    </tr>
-  `).join("");
+      <td class="category"><span class="cat-badge ${CATEGORY_CLASSES[g.category] || 'cat-concept'}">${CATEGORY_LABELS[g.category] || g.category}</span></td>
+      <td>${isCustom ? `<button class="btn-delete-row" onclick="deleteCustomEntry(${customIdx})" title="Remove entry">✕</button>` : ''}</td>
+    </tr>`;
+  }).join("");
 }
-
-renderGlossary();
 
 function filterGlossary() {
   renderGlossary(document.getElementById("glossarySearch").value);
 }
+
+// Load custom entries on startup
+loadCustomEntries();
+
+
 
 // ============================================================
 // TABS
@@ -1046,7 +1368,7 @@ document.getElementById("inputText").addEventListener("input", function() {
 // ============================================================
 function buildGlossaryBlock(variant) {
   const isSimp = variant === "simplified";
-  return GLOSSARY.map(g => `"${g.english}" → "${isSimp ? g.simplified : g.traditional}"`).join("\n");
+  return getFullGlossary().map(g => `"${g.english}" → "${isSimp ? g.simplified : g.traditional}"`).join("\n");
 }
 
 // ============================================================
@@ -1102,6 +1424,16 @@ INSTRUCTIONS:
     outputDiv.textContent = translated;
     copyBtn.style.display = "block";
 
+    // Show export buttons and save to history
+    document.getElementById("exportWordBtn").style.display = "flex";
+    document.getElementById("exportCsvBtn").style.display = "flex";
+    translationHistory.push({
+      english: input,
+      chinese: translated,
+      variant: variant === "simplified" ? "Simplified 简体" : "Traditional 繁體",
+      timestamp: new Date().toLocaleString()
+    });
+
   } catch (err) {
     outputDiv.className = "output-area";
     outputDiv.textContent = "Error: " + err.message;
@@ -1121,6 +1453,149 @@ function copyOutput() {
     btn.textContent = "Copied! ✓";
     setTimeout(() => { btn.textContent = "Copy 复制"; }, 2000);
   });
+}
+
+// ============================================================
+// TRANSLATION HISTORY
+// ============================================================
+let translationHistory = [];
+
+// ============================================================
+// EXPORT TO CSV
+// ============================================================
+function exportToCSV() {
+  if (!translationHistory.length) return;
+  const rows = [["Timestamp", "Variant", "English Original", "Chinese Translation"]];
+  translationHistory.forEach(t => {
+    rows.push([t.timestamp, t.variant, t.english, t.chinese]);
+  });
+  const csv = rows.map(r =>
+    r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(",")
+  ).join("\n");
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "caa-translations-" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click();
+}
+
+// ============================================================
+// EXPORT TO WORD (.docx)
+// ============================================================
+async function exportToWord() {
+  if (!translationHistory.length) return;
+  if (typeof docx === "undefined") {
+    alert("Word export library not loaded. Please check your internet connection.");
+    return;
+  }
+
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+          AlignmentType, BorderStyle, WidthType, ShadingType, HeadingLevel } = docx;
+
+  const border = { style: BorderStyle.SINGLE, size: 1, color: "DDCCB0" };
+  const borders = { top: border, bottom: border, left: border, right: border };
+  const headerShading = { fill: "1A1008", type: ShadingType.CLEAR };
+  const rowShadingAlt = { fill: "FAF3E8", type: ShadingType.CLEAR };
+
+  // Title paragraph
+  const titlePara = new Paragraph({
+    children: [
+      new TextRun({ text: "CAA Translation Log", bold: true, size: 32, font: "Arial", color: "1A1008" }),
+    ],
+    spacing: { after: 120 },
+  });
+
+  const subtitlePara = new Paragraph({
+    children: [
+      new TextRun({ text: "Chinese for Affirmative Action  ·  华人权益促进会", size: 20, font: "Arial", color: "888888" }),
+    ],
+    spacing: { after: 80 },
+  });
+
+  const datePara = new Paragraph({
+    children: [
+      new TextRun({ text: "Exported: " + new Date().toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" }), size: 18, font: "Arial", color: "999999" }),
+    ],
+    spacing: { after: 360 },
+  });
+
+  // Table header row
+  const headerRow = new TableRow({
+    tableHeader: true,
+    children: [
+      new TableCell({
+        borders, shading: headerShading,
+        width: { size: 4200, type: WidthType.DXA },
+        margins: { top: 100, bottom: 100, left: 150, right: 150 },
+        children: [new Paragraph({ children: [new TextRun({ text: "English Original", bold: true, color: "FDF6EC", size: 20, font: "Arial" })] })]
+      }),
+      new TableCell({
+        borders, shading: headerShading,
+        width: { size: 4200, type: WidthType.DXA },
+        margins: { top: 100, bottom: 100, left: 150, right: 150 },
+        children: [new Paragraph({ children: [new TextRun({ text: "Chinese Translation", bold: true, color: "FDF6EC", size: 20, font: "Arial" })] })]
+      }),
+      new TableCell({
+        borders, shading: headerShading,
+        width: { size: 960, type: WidthType.DXA },
+        margins: { top: 100, bottom: 100, left: 150, right: 150 },
+        children: [new Paragraph({ children: [new TextRun({ text: "Variant", bold: true, color: "FDF6EC", size: 20, font: "Arial" })] })]
+      }),
+    ]
+  });
+
+  // Data rows
+  const dataRows = translationHistory.map((t, i) =>
+    new TableRow({
+      children: [
+        new TableCell({
+          borders,
+          shading: i % 2 === 1 ? rowShadingAlt : { fill: "FFFDF8", type: ShadingType.CLEAR },
+          width: { size: 4200, type: WidthType.DXA },
+          margins: { top: 100, bottom: 100, left: 150, right: 150 },
+          children: [new Paragraph({ children: [new TextRun({ text: t.english, size: 18, font: "Arial" })] })]
+        }),
+        new TableCell({
+          borders,
+          shading: i % 2 === 1 ? rowShadingAlt : { fill: "FFFDF8", type: ShadingType.CLEAR },
+          width: { size: 4200, type: WidthType.DXA },
+          margins: { top: 100, bottom: 100, left: 150, right: 150 },
+          children: [new Paragraph({ children: [new TextRun({ text: t.chinese, size: 18, font: "Arial" })] })]
+        }),
+        new TableCell({
+          borders,
+          shading: i % 2 === 1 ? rowShadingAlt : { fill: "FFFDF8", type: ShadingType.CLEAR },
+          width: { size: 960, type: WidthType.DXA },
+          margins: { top: 100, bottom: 100, left: 150, right: 150 },
+          children: [new Paragraph({ children: [new TextRun({ text: t.variant, size: 16, font: "Arial", color: "666666" })] })]
+        }),
+      ]
+    })
+  );
+
+  const table = new Table({
+    width: { size: 9360, type: WidthType.DXA },
+    columnWidths: [4200, 4200, 960],
+    rows: [headerRow, ...dataRows],
+  });
+
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          size: { width: 12240, height: 15840 },
+          margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 }
+        }
+      },
+      children: [titlePara, subtitlePara, datePara, table]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "caa-translations-" + new Date().toISOString().slice(0,10) + ".docx";
+  a.click();
 }
 </script>
 </body>
